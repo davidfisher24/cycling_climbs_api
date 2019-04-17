@@ -48,6 +48,12 @@ class ClimbOneSerializer(GeoFeatureModelSerializer):
 		fields = ('id', 'name', 'path', 'altitude', 'extent', 'gradient', 'gain', 
 			'distance', 'center')
 
+class AltimeterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Climb
+        geo_field = "path"
+        fields = ('id', 'name', 'waypoints', 'altitude', 'extent', 'gradient', 'gain', 
+            'distance', 'center')
 
 class RegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(

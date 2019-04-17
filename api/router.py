@@ -5,3 +5,4 @@ import api.views as views
 router = DefaultRouter()
 router.register(r'peak', views.PeakViewSet)
 router.register(r'climb', views.ClimbViewSet)
+router.register(r'altimeter', views.AltimeterViewSet)

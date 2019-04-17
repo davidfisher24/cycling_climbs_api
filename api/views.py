@@ -5,11 +5,10 @@ from rest_framework.response import Response
 import django_filters.rest_framework
 import api.models as models
 import api.serializers as serializers
+from django.http import HttpResponse
 
 from django.contrib.gis.geos import Point, Polygon
 from django.contrib.gis.measure import Distance  
-
-from math import sqrt, pi, log, sin
 
 
 class DefaultsMixin(object):
@@ -78,6 +77,25 @@ class ClimbViewSet(DefaultsMixin, viewsets.ReadOnlyModelViewSet):
 		serializer = serializers.ClimbListSerializer(queryset, many=True)
 		filterset_fields = ('name','peak')
 		return Response(serializer.data)
+
+
+class AltimeterViewSet(DefaultsMixin, viewsets.ReadOnlyModelViewSet):
+	queryset = models.Climb.objects.all()
+
+	def retrieve(self, request, pk):
+		climb = models.Climb.objects.get(pk=pk)
+		serializer = serializers.AltimeterSerializer(climb)
+		return Response(serializer.data)
+
+	def list(self, request):
+		
+		options = {}
+		for key in (request.GET):
+			options[key] = request.GET.get(key)
+
+		queryset = models.Climb.objects.filter(**options)
+		serializer = serializers.AltimeterSerializer(queryset, many=True)
+		return Response(serializer.data)
 		
 
 class RegistrationView(DefaultsMixin, APIView):
@@ -122,3 +140,10 @@ class UserView(APIView):
         serializer.save()
 
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+class ImageView(APIView):
+	def get(self, request, format=None):
+		with open('./assets'+request.path,'rb') as fh:
+			return HttpResponse(fh.read(), content_type='image')
+
+        

@@ -17,14 +17,15 @@ from django.conf.urls import url,include
 from django.contrib import admin
 
 from api.router import router
-from api.views import RegistrationView, LoginView, UserView
+from api.views import RegistrationView, LoginView, UserView, ImageView
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^api/', include(router.urls)),
     url(r'api/user', UserView.as_view()),
     url(r'api/auth/register', RegistrationView.as_view()),
-    url(r'api/auth/login', LoginView.as_view())
+    url(r'api/auth/login', LoginView.as_view()),
+    url(r'^images/', ImageView.as_view())
 ]
 
 
