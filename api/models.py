@@ -1,30 +1,18 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
 import json
 import jwt
-import math
 from datetime import datetime, timedelta
-
-#from django.db import models
 from django.contrib.gis.db import models
 from django.contrib.auth.models import (
     AbstractBaseUser, BaseUserManager, PermissionsMixin
 )
-from django.contrib.gis.geos import GEOSGeometry, LineString, Point
+from django.contrib.gis.geos import LineString, Point
 from django.conf import settings
 
+import math
+
 class UserManager(BaseUserManager):
-    """
-    Django requires that custom users define their own Manager class. By
-    inheriting from `BaseUserManager`, we get a lot of the same code used by
-    Django to create a `User`. 
-
-    All we have to do is override the `create_user` function which we will use
-    to create `User` objects.
-    """
-
     def create_user(self, username, email, password=None):
-        """Create and return a `User` with an email, username and password."""
         if username is None:
             raise TypeError('Users must have a username.')
 
@@ -38,9 +26,6 @@ class UserManager(BaseUserManager):
         return user
 
     def create_superuser(self, username, email, password):
-        """
-        Create and return a `User` with superuser (admin) permissions.
-        """
         if password is None:
             raise TypeError('Superusers must have a password.')
 
@@ -80,7 +65,6 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def _generate_jwt_token(self):
         dt = datetime.now() + timedelta(days=60)
-        print(settings.SECRET_KEY)
 
         token = jwt.encode({
             'id': self.pk,
@@ -89,17 +73,25 @@ class User(AbstractBaseUser, PermissionsMixin):
 
         return token.decode('utf-8')
 
-class Peak(models.Model):
+class Province(models.Model):
     name = models.CharField(max_length=200)
-    location = models.PointField()
-    created_at = models.DateTimeField(auto_now_add=True)
+    population = models.IntegerField()
+    region = models.IntegerField()
+    area = models.MultiPolygonField()
 
 class Climb(models.Model):
-    name = models.CharField(max_length=200)
-    peak = models.ForeignKey(
-        Peak, related_name='climbs', on_delete=models.CASCADE)
+    climb_name = models.CharField(max_length=200, null=True)
+    peak_name = models.CharField(max_length=200, null=True)
+    location = models.PointField(null=True)
+    start = models.PointField(null=True)
+    summit = models.PointField(null=True)
     path = models.LineStringField()
     created_at = models.DateTimeField(auto_now_add=True)
+    #alter sequence api_climb_id_seq RESTART 950;
+
+    @property
+    def name(self):
+        return ' '.join([self.peak_name, "por", self.climb_name])
 
     @property
     def altitude(self):
@@ -156,9 +148,51 @@ class Climb(models.Model):
             "type": "FeatureCollection",
             "features": points,
         }
-    
-    
 
-def __str__(self):
-        return '%s %s' % (self.name)
+    @property
+    def kilometers(self):
+        points = []
+        kilometers = []
+        indexLimit = math.ceil(self.path.length * 1000) + 1
+        for x in range(0,indexLimit):
 
+            point = {}
+            distance = self.path.length * 100 if (math.ceil(self.path.length * 1000)) == x else x/10
+            point["altitude"] = json.loads(self.path.interpolate(x/1000).geojson)['coordinates'][2]
+            point["distance"] = distance
+            points.append(point)
+
+            if x%10 == 0 or x == indexLimit - 1:
+                divider = (distance - points[x-10]["distance"]) * 10 if x !=0 else None
+                point['kmGradient'] = (point['altitude'] - points[x-10]['altitude']) / divider if x != 0 else 0
+                kilometers.append(point)
+                
+        return kilometers
+    
+class Review(models.Model):
+    text = models.TextField()
+    score = models.IntegerField()
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    climb = models.ForeignKey(Climb, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+class ReviewFlag(models.Model):
+    review = models.ForeignKey(Review, on_delete=models.CASCADE)
+    text = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+class Photo(models.Model):
+    path = models.CharField(max_length=200)
+    fileType = models.CharField(max_length=50)
+    fileSize = models.IntegerField()
+    text = models.TextField(null=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    climb = models.ForeignKey(Climb, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+class PhotoFlag(models.Model):
+    photo = models.ForeignKey(Photo, on_delete=models.CASCADE)
+    text = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    

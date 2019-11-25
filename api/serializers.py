@@ -2,58 +2,48 @@
 
 from rest_framework import serializers
 from rest_framework_gis.serializers import GeoFeatureModelSerializer
-from api.models import Climb,Peak,User
+from api.models import Climb,User,Province,Review,Photo
 from django.contrib.auth import authenticate
-
-class PeakListSerializer(GeoFeatureModelSerializer):
-	class Meta:
-		model = Peak
-		geo_field = "location"
-		fields = ('id', 'name', 'location',)
-
-class PeakOneSerializer(serializers.ModelSerializer):
-
-    class RelatedClimbsSerializer(GeoFeatureModelSerializer):
-        class Meta:
-            model = Climb
-            geo_field = "path"
-            fields = ('id', 'name', 'path', 'extent')
-
-    climbs = RelatedClimbsSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = Peak
-        fields = ('id', 'name', 'location', 'climbs')
-
-
-class ClimbListSerializer(serializers.ModelSerializer):
-
-	class RelatedPeakSerializer(GeoFeatureModelSerializer):
-		class Meta:
-			model = Peak
-			geo_field = "location"
-			fields = ('id', 'name', 'location')
-
-	peak = RelatedPeakSerializer(many=False, read_only=True)
-
-	class Meta:
-		model = Climb
-		fields = ('id', 'name', 'peak')
-
-
-class ClimbOneSerializer(GeoFeatureModelSerializer):
-	class Meta:
-		model = Climb
-		geo_field = "path"
-		fields = ('id', 'name', 'path', 'altitude', 'extent', 'gradient', 'gain', 
-			'distance', 'center')
+from django.contrib.gis.measure import Distance  
 
 class AltimeterSerializer(serializers.ModelSerializer):
     class Meta:
         model = Climb
         geo_field = "path"
-        fields = ('id', 'name', 'waypoints', 'altitude', 'extent', 'gradient', 'gain', 
-            'distance', 'center')
+        fields = ('id', 'name', 'altitude', 'extent', 'gradient', 'gain', 
+            'distance', 'center', 'kilometers')
+
+class ClimbListSerializer(GeoFeatureModelSerializer):
+    class Meta:
+        model = Climb
+        geo_field = "location"
+        fields= ('id','name','location')
+
+class ClimbOneSerializer(GeoFeatureModelSerializer):
+    class Meta:
+        model = Climb
+        geo_field = "path"
+        fields = ('id', 'name', 'path', 'location', 'altitude', 'extent', 'gradient', 'gain', 
+            'distance', 'center', 'peak_name', 'climb_name')
+        extra_kwargs = {
+            'peak_name': {'write_only': True},
+            'climb_name': {'write_only': True}
+        }  
+
+class ProvinceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Province
+        fields = ('id', 'name')
+
+class ReviewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Review
+        fields = ('id','text','score','user','created_at','updated_at','climb')
+
+class PhotoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Photo
+        fields = ('id','path','fileType','fileSize','text','user','created_at', 'climb')
 
 class RegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(

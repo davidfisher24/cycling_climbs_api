@@ -1,102 +1,116 @@
 # -*- coding: utf-8 -*-
-from rest_framework import authentication, permissions, viewsets, filters, status
+from rest_framework import permissions, status, pagination
 from rest_framework.views import APIView
 from rest_framework.response import Response
-import django_filters.rest_framework
+from rest_framework.decorators import list_route  
+from api.viewBase import DefaultViewSet, DefaultsMixin
 import api.models as models
 import api.serializers as serializers
 from django.http import HttpResponse
-
-from django.contrib.gis.geos import Point, Polygon
+from django.core.files.storage import FileSystemStorage
+from django.contrib.gis.geos import Point, Polygon, LineString
 from django.contrib.gis.measure import Distance  
+from magic import from_file
+import time
 
-
-class DefaultsMixin(object):
-	authentication_classes = (
-		#authentication.BasicAuthentication,
-		#authentication.TokenAuthentication,
-	)
-	permission_classes = (
-		#permissions.IsAuthenticated,
-	)
-	paginate_by = 25
-	paginate_by_param = 'page_size'
-	max_paginate_by = 100
-	filter_backends = (
-		django_filters.rest_framework.DjangoFilterBackend,
-        #filters.SearchFilter,
-        #filters.OrderingFilter,
-    )
-
-class PeakViewSet(DefaultsMixin, viewsets.ReadOnlyModelViewSet):
-	queryset = models.Peak.objects.all()
-
-	def retrieve(self, request, pk):
-		peak = models.Peak.objects.get(pk=pk)
-		serializer = serializers.PeakOneSerializer(peak)
-		return Response(serializer.data)
-
-	def list(self,request):
-		if request.GET.get('ne') and request.GET.get('sw'):
-			ne = request.GET['ne'].split(',')
-			sw = request.GET['sw'].split(',')
-			xmin=sw[1]
-			ymin=sw[0]
-			xmax=ne[1]
-			ymax=ne[0]
-			bbox = (xmin, ymin, xmax, ymax)
-			geom = Polygon.from_bbox(bbox)
-			queryset = models.Peak.objects.filter(location__contained=geom)
-		elif request.GET.get('location') and request.GET.get('distance'):
-			loc = request.GET['location'].split(',')
-			lat = loc[0]
-			lng = loc[1]
-			point = Point(float(lng), float(lat))
-			radius = request.GET['distance']
-			queryset = models.Peak.objects.filter(location__distance_lt=(point, Distance(km=radius)))
-		else :
-			options = {}
-			for key in (request.GET):
-				options[key] = request.GET.get(key)
-			queryset = models.Peak.objects.filter(**options); 
-		
-		serializer = serializers.PeakListSerializer(queryset, many=True)
-		return Response(serializer.data)
-
-
-class ClimbViewSet(DefaultsMixin, viewsets.ReadOnlyModelViewSet):
-	queryset = models.Climb.objects.all()
-
-	def retrieve(self, request, pk):
-		climb = models.Climb.objects.get(pk=pk)
-		serializer = serializers.ClimbOneSerializer(climb)
-		return Response(serializer.data)
-
-	def list(self, request):
-		queryset = models.Climb.objects.all()
-		serializer = serializers.ClimbListSerializer(queryset, many=True)
-		filterset_fields = ('name','peak')
-		return Response(serializer.data)
-
+from rest_framework import viewsets
 
 class AltimeterViewSet(DefaultsMixin, viewsets.ReadOnlyModelViewSet):
-	queryset = models.Climb.objects.all()
+    queryset = models.Climb.objects.all()
+    permission_classes = (permissions.AllowAny,)
 
-	def retrieve(self, request, pk):
-		climb = models.Climb.objects.get(pk=pk)
-		serializer = serializers.AltimeterSerializer(climb)
-		return Response(serializer.data)
+    def retrieve(self, request, pk):
+        climb = models.Climb.objects.get(pk=pk)
+        serializer = serializers.AltimeterSerializer(climb)
+        return Response(serializer.data)
 
-	def list(self, request):
-		
-		options = {}
-		for key in (request.GET):
-			options[key] = request.GET.get(key)
+    def list(self, request):
+        options = {}
+        for key in (request.GET):
+            options[key] = request.GET.get(key)
 
-		queryset = models.Climb.objects.filter(**options)
-		serializer = serializers.AltimeterSerializer(queryset, many=True)
-		return Response(serializer.data)
-		
+        queryset = models.Climb.objects.filter(**options)
+        serializer = serializers.AltimeterSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+class ClimbViewSet(DefaultViewSet):
+    queryset = models.Climb.objects.all()
+    serializer_class = serializers.ClimbOneSerializer
+    serializers = {
+        'list': serializers.ClimbListSerializer,
+    }
+    query_options = ['climb_name','peak_name']
+
+    def convertGeom(self):
+        path = LineString(self.request.data['path'])
+        self.request.data['path'] = path
+        self.request.data['start'] = Point(path[0])
+        self.request.data['location'] = Point(path[0])
+        self.request.data['summit'] = Point(path[-1])
+
+    def create(self,request,*args,**kwargs):
+        self.convertGeom()
+        return super().create(self.request,*args,**kwargs)
+
+    def update(self,request,*args,**kwargs):
+        if ('path' in request.data):
+            self.convertGeom()
+        return super().update(self.request,*args,**kwargs)
+
+    @list_route()
+    def inarea(self, request, *args, **kwargs):
+        ne = request.GET['ne'].split(',')
+        sw = request.GET['sw'].split(',')
+        bbox = (sw[0], ne[0], sw[1], ne[1])
+        geom = Polygon.from_bbox(bbox)
+        self.queryset = models.Climb.objects.filter(location__contained=geom)
+        return super().list(request)
+
+    @list_route()
+    def nearby(self,request, *args, **kwargs):
+        location = request.GET['location'].split(',')
+        radius = request.GET['distance']
+        lat = location[0]
+        lng = location[1]
+        point = Point(float(lng), float(lat))
+        self.queryset = models.Climb.objects.filter(location__distance_lt=(point, Distance(km=radius)))
+        return super().list(request)
+
+    @list_route()
+    def province(self,request,*args, **kwargs):
+        provId = int(request.GET['id'])
+        province = models.Province.objects.get(pk=provId)
+        self.queryset = models.Climb.objects.filter(path__within=province.area)
+        return super().list(request)
+
+class ProvinceViewSet(DefaultViewSet):
+    queryset = models.Province.objects.all()
+    serializer_class = serializers.ProvinceSerializer
+    page_size = 10
+
+class ReviewViewSet(DefaultViewSet):
+    queryset = models.Review.objects.all()
+    serializer_class = serializers.ReviewSerializer
+    key_options = ['user','climb']
+    page_size = 20
+
+class PhotoViewSet(DefaultViewSet):
+    queryset = models.Photo.objects.all()
+    serializer_class = serializers.PhotoSerializer
+    page_size = 20
+
+    def create(self,request,*args,**kwargs):
+        fs = FileSystemStorage()
+        timeFileName = time.strftime("%Y%m%d-%H%M%S")
+        path = 'assets/'+str(request.data['climb'])+'/photos/'+timeFileName
+        fs.save(path,request.FILES['photo'])
+        
+        request.data._mutable = True
+        request.data['path'] = path
+        request.data['fileSize'] = request.FILES['photo'].size
+        request.data['fileType'] = from_file(path, mime=True)
+
+        return super().create(request)
 
 class RegistrationView(DefaultsMixin, APIView):
 	queryset = models.User.objects.all()
@@ -122,8 +136,8 @@ class LoginView(DefaultsMixin, APIView):
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-class UserView(APIView):
-    permission_classes = (permissions.IsAuthenticated,)
+
+class UserView(DefaultsMixin, APIView):
     serializer_class = serializers.UserSerializer
 
     def get(self, request, *args, **kwargs):
@@ -139,11 +153,7 @@ class UserView(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
 
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
 class ImageView(APIView):
-	def get(self, request, format=None):
-		with open('./assets'+request.path,'rb') as fh:
-			return HttpResponse(fh.read(), content_type='image')
-
-        
+    def get(self, request, format=None):
+        with open('./assets'+request.path,'rb') as fh:
+            return HttpResponse(fh.read(), content_type='image')
