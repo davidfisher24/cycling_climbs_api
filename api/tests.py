@@ -2,6 +2,7 @@ from django.test import TestCase
 from rest_framework.test import APIClient
 from django.contrib.gis.geos import LineString, Point
 from api.models import Climb
+from api.serializers import ClimbListSerializer, ClimbOneSerializer, AltimeterSerializer
 from api.views import ClimbViewSet
 import json
 
@@ -68,5 +69,27 @@ class ClimbTestCase(TestCase):
             "altitude": 1209.0,
             "distance": 11.553748730019581,
             "kmGradient": 1.494247273854261
+        })
+
+    def test_climb_virtual_area(self):
+        climb = Climb.objects.get(pk=1)
+        self.assertEqual(len(climb.area),340)
+        self.assertEqual(climb.area[0],{
+            'altitude': 415, 
+            'distance': 0, 
+            'x': 0, 
+            'y': 0
+        })
+        self.assertEqual(climb.area[150],{
+            'altitude': 766, 
+            'distance': 3.854531285827735, 
+            'x': 3.854531285827735, 
+            'y': 351
+        })
+        self.assertEqual(climb.area[339],{
+            "altitude": 1209.0,
+            "distance": 11.553748730019585,
+            "x": 11.553748730019585,
+            "y": 794.0
         })
     

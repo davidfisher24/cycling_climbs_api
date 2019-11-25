@@ -10,6 +10,7 @@ from django.contrib.gis.geos import LineString, Point
 from django.conf import settings
 
 import math
+import functools 
 
 class UserManager(BaseUserManager):
     def create_user(self, username, email, password=None):
@@ -87,7 +88,6 @@ class Climb(models.Model):
     summit = models.PointField(null=True)
     path = models.LineStringField()
     created_at = models.DateTimeField(auto_now_add=True)
-    #alter sequence api_climb_id_seq RESTART 950;
 
     @property
     def name(self):
@@ -118,36 +118,24 @@ class Climb(models.Model):
         return json.loads(self.path.centroid.geojson)
 
     @property
-    def waypoints(self):
-        points = []
-        for x in range(0,math.ceil(self.path.length * 1000) + 1):
-            point = {}
-            point["type"] = "Feature"
-            point["geometry"] = json.loads(self.path.interpolate(x/1000).geojson)
-            distance = self.path.length * 100 if (math.ceil(self.path.length * 1000)) == x else x/10
-            point["properties"] = {}
-            point["properties"]["distance"] = distance
-            
-            if x != 0:
-                divider = (distance - points[x-1]["properties"]["distance"]) * 100
-                point["properties"]["gain"] = point["geometry"]["coordinates"][2] - points[x-1]["geometry"]["coordinates"][2]
-                point["properties"]["gradient"] = (point["geometry"]["coordinates"][2] - points[x-1]["geometry"]["coordinates"][2]) / divider
-            else:
-                point["properties"]["gain"] = 0
-                point["properties"]["gradient"] = 0
+    def area(self):
+        area = []
+        baseY = self.path[0][2]
+        accumX = 0
 
-            if point["properties"]["distance"] >= 1:
-                divider = (distance - points[x-10]["properties"]["distance"]) * 10
-                point["properties"]["kmGradient"] = (point["geometry"]["coordinates"][2] - points[x-10]["geometry"]["coordinates"][2]) / divider
-            else:
-                point["properties"]["kmGradient"] = None
+        for i in range(0,len(self.path)):
+            currentPoint = self.path[i]
+            prevPoint = self.path[i - 1] if i > 0 else None
+            distance = Point(currentPoint[0],currentPoint[1]).distance(Point(prevPoint[0],prevPoint[1])) * 100 if i > 0 else 0
+            accumX += distance
+            area.append({
+                'altitude': currentPoint[2],
+                'distance': accumX,
+                'x': accumX,
+                'y': currentPoint[2] - baseY,
+            })
 
-            points.append(point)
-
-        return {
-            "type": "FeatureCollection",
-            "features": points,
-        }
+        return area
 
     @property
     def kilometers(self):
@@ -166,7 +154,7 @@ class Climb(models.Model):
                 divider = (distance - points[x-10]["distance"]) * 10 if x !=0 else None
                 point['kmGradient'] = (point['altitude'] - points[x-10]['altitude']) / divider if x != 0 else 0
                 kilometers.append(point)
-                
+
         return kilometers
     
 class Review(models.Model):

@@ -11,7 +11,7 @@ class AltimeterSerializer(serializers.ModelSerializer):
         model = Climb
         geo_field = "path"
         fields = ('id', 'name', 'altitude', 'extent', 'gradient', 'gain', 
-            'distance', 'center', 'kilometers')
+            'distance', 'center', 'kilometers', 'area')
 
 class ClimbListSerializer(GeoFeatureModelSerializer):
     class Meta:
