@@ -14,9 +14,6 @@ class Migration(migrations.Migration):
             "ALTER TABLE api_climb ALTER COLUMN path TYPE geometry(LineStringZ,4326)",
         ),
         migrations.RunSQL(
-            "ALTER TABLE api_town ALTER COLUMN location TYPE geometry(PointZ,4326)",
-        ),
-        migrations.RunSQL(
             "ALTER TABLE api_climb ALTER COLUMN location TYPE geometry(PointZ,4326)",
         ),
         migrations.RunSQL(

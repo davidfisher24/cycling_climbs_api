@@ -14,6 +14,7 @@ class Migration(migrations.Migration):
         ('auth', '0009_alter_user_last_name_max_length'),
     ]
 
+
     operations = [
         migrations.CreateModel(
             name='User',
@@ -46,6 +47,7 @@ class Migration(migrations.Migration):
                 ('summit', django.contrib.gis.db.models.fields.PointField(null=True, srid=4326)),
                 ('path', django.contrib.gis.db.models.fields.LineStringField(srid=4326)),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
+                ('user', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
             ],
         ),
         migrations.CreateModel(
@@ -99,19 +101,6 @@ class Migration(migrations.Migration):
                 ('text', models.TextField()),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('review', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='api.Review')),
-            ],
-        ),
-        migrations.CreateModel(
-            name='Town',
-            fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=200)),
-                ('location', django.contrib.gis.db.models.fields.PointField(srid=4326)),
-                ('habitants', models.IntegerField()),
-                ('males', models.IntegerField()),
-                ('females', models.IntegerField()),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('province', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='towns', to='api.Province')),
             ],
         ),
     ]

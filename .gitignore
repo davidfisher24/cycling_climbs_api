@@ -13,6 +13,7 @@
 /env/
 MANIFEST
 coverage.*
+env.py
 
 !.gitignore
 !.travis.yml
