@@ -87,6 +87,7 @@ class Climb(models.Model):
     start = models.PointField(null=True)
     summit = models.PointField(null=True)
     path = models.LineStringField()
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     @property

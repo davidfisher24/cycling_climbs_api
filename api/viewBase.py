@@ -77,5 +77,4 @@ class DefaultViewSet(DefaultsMixin, viewsets.ModelViewSet):
             if (key in self.key_options):
                 options[key] = int(self.request.query_params[key])
 
-        print(options)
         return qs.filter(**options)
