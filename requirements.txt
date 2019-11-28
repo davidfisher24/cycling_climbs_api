@@ -1,0 +1,5 @@
+Django==2.1.5
+djangorestframework_gis==0.14
+djangorestframework==3.10.3
+PyJWT==1.7.1
+python_magic==0.4.15
