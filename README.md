@@ -20,7 +20,10 @@ pip install -r requirements.txt
 
 Copy env.example.py to env.py and define environment settings
 
-Create database in psql and migrate schema
+Create database in postgres. Don't forget to add the postgis extension to the database `CREATE EXTENSION postgis;` and the unaccent extension `CREATE EXTENSION unaccent;
+`
+
+Migrate schema
 
 ```
 python3 manage.py migrate
