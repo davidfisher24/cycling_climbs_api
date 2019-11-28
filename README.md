@@ -12,10 +12,10 @@ libpq-dev installed
 
 ## Local Deployment
 
-Install dependencies
+Install dependencies (use pip3)
 
 ```
-pip install -r requirements.txt
+pip3 install -r requirements.txt
 ```
 
 Copy env.example.py to env.py and define environment settings

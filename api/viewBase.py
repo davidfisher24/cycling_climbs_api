@@ -7,7 +7,6 @@ from django.core.files.storage import FileSystemStorage
 from magic import from_file
 import time
 
-
 class DefaultsMixin(object):
 	authentication_classes = (
 		authentication.BasicAuthentication,
