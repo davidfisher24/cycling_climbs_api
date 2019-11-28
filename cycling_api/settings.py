@@ -34,7 +34,6 @@ DEBUG = locals()['DEBUG']
 
 ALLOWED_HOSTS = locals()['ALLOWED_HOSTS']
 
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -98,7 +97,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'cycling_api.wsgi.application'
+WSGI_APPLICATION = 'wsgi.application'
 
 
 # Database
