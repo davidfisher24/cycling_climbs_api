@@ -73,7 +73,7 @@ class DefaultViewSet(DefaultsMixin, viewsets.ModelViewSet):
 
         for key in self.request.query_params:
             if (key in self.query_options):
-                options[f"{key}__unaccent__icontains"] = self.request.query_params[key]
+                options[key + "__unaccent__icontains"] = self.request.query_params[key]
             if (key in self.key_options):
                 options[key] = int(self.request.query_params[key])
 
