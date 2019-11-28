@@ -32,7 +32,7 @@ SECRET_KEY = locals()['SECRET_KEY']
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = locals()['DEBUG']
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = locals()['ALLOWED_HOSTS']
 
 
 # Application definition

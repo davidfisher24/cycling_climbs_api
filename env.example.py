@@ -8,4 +8,8 @@ DATABASE_PASSWORD='my-db-password'
 DATABASE_HOST='localhost'
 DATABASE_PORT=5432
 
+#Allowed Hosts
+ALLOWED_HOSTS=[]
+
+
 
