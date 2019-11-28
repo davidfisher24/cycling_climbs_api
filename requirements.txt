@@ -1,4 +1,4 @@
-Django==2.2.5
+Django==2.2.7
 djangorestframework_gis==0.14
 djangorestframework==3.10.3
 PyJWT==1.7.1
