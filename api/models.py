@@ -118,26 +118,23 @@ class Climb(models.Model):
     def center(self):
         return json.loads(self.path.centroid.geojson)
 
-    @property
+    @property    
     def area(self):
         area = []
         baseY = self.path[0][2]
-        accumX = 0
 
-        for i in range(0,len(self.path)):
-            currentPoint = self.path[i]
-            prevPoint = self.path[i - 1] if i > 0 else None
-            distance = Point(currentPoint[0],currentPoint[1]).distance(Point(prevPoint[0],prevPoint[1])) * 100 if i > 0 else 0
-            accumX += distance
+        for x in range(0,math.ceil(self.path.length * 1000) + 1):
+            distance = self.path.length * 100 if (math.ceil(self.path.length * 1000)) == x else x/10
+            altitude = json.loads(self.path.interpolate(x/1000).geojson)['coordinates'][2]
             area.append({
-                'altitude': currentPoint[2],
-                'distance': accumX,
-                'x': accumX,
-                'y': currentPoint[2] - baseY,
+                'altitude': altitude,
+                'distance': distance,
+                'x': distance,
+                'y': altitude - baseY,
             })
 
         return area
-
+    
     @property
     def kilometers(self):
         points = []

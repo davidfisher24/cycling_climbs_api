@@ -1,6 +1,6 @@
 from django.test import TestCase
 from rest_framework.test import APIClient, APIRequestFactory, force_authenticate
-from api.models import User
+from api.models import User, UserManager
 from api.serializers import RegistrationSerializer, LoginSerializer, UserSerializer
 from api.views import RegistrationView, LoginView, UserView
 import json
@@ -9,6 +9,14 @@ class UserTestCase(TestCase):
     def setUp(self):
         self.client = APIClient()
         self.factory = APIRequestFactory()
+
+        self.user_data = {
+            'email': 'davidfisher24@gmail.com',
+            'password': 'password',
+            'username': 'davidfisher24'
+        }
+
+        self.user = User.objects.create(**self.user_data)
 
     def test_registration_viewset_creates_user(self):
         view = RegistrationView.as_view()
