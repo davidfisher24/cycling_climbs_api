@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 from rest_framework import permissions, status, pagination
 from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.decorators import list_route  
+from rest_framework.response import Response 
+from rest_framework.decorators import action
 from api.viewBase import DefaultViewSet, DefaultsMixin
 import api.models as models
 import api.serializers as serializers
@@ -57,7 +57,7 @@ class ClimbViewSet(DefaultViewSet):
             self.convertGeom()
         return super().update(self.request,*args,**kwargs)
 
-    @list_route()
+    @action(detail=False)
     def inarea(self, request, *args, **kwargs):
         ne = request.GET['ne'].split(',')
         sw = request.GET['sw'].split(',')
@@ -66,7 +66,7 @@ class ClimbViewSet(DefaultViewSet):
         self.queryset = models.Climb.objects.filter(location__contained=geom)
         return super().list(request)
 
-    @list_route()
+    @action(detail=False)
     def nearby(self,request, *args, **kwargs):
         location = request.GET['location'].split(',')
         radius = request.GET['distance']
@@ -76,7 +76,7 @@ class ClimbViewSet(DefaultViewSet):
         self.queryset = models.Climb.objects.filter(location__distance_lt=(point, Distance(km=radius)))
         return super().list(request)
 
-    @list_route()
+    @action(detail=False)
     def province(self,request,*args, **kwargs):
         provId = int(request.GET['id'])
         province = models.Province.objects.get(pk=provId)
