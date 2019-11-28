@@ -22,14 +22,15 @@ for setting in dir(config_module):
     if setting == setting.upper():
         locals()[setting] = getattr(config_module, setting)
 
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '!bp2z#6&&$&4x)^^sdm-)7&&lm_erqk!jeuuqq%jws_pf#fqj!'
+SECRET_KEY = locals()['SECRET_KEY']
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = locals()['DEBUG']
 
 ALLOWED_HOSTS = []
 
@@ -106,11 +107,11 @@ WSGI_APPLICATION = 'cycling_api.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': 'cycling',                      
-        'USER': 'david',
-        'PASSWORD': 'D00rarac',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'NAME': locals()['DATABASE_NAME'],                      
+        'USER': locals()['DATABASE_USER'],
+        'PASSWORD': locals()['DATABASE_PASSWORD'],
+        'HOST': locals()['DATABASE_HOST'],
+        'PORT': locals()['DATABASE_PORT'],
     }
 }
 
