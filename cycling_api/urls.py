@@ -16,7 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.conf.urls import url,include
 from api.router import router
-from api.views import RegistrationView, LoginView, VerifyView, RefreshView, UserView, ImageView
+from api.views import RegistrationView, LoginView, VerifyView, RefreshView, ForgotPasswordView, UserView, ImageView
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
@@ -26,6 +26,8 @@ urlpatterns = [
     url(r'api/auth/login', LoginView.as_view()),
     url(r'api/auth/verify', VerifyView.as_view()),
     url(r'api/auth/refresh', RefreshView.as_view()),
+    url(r'api/auth/forgot-password', ForgotPasswordView.as_view()),
+    #url(r'api/auth/reset-password', ResetPasswordView.as_view()),
     url(r'^images/', ImageView.as_view())
 ]
 

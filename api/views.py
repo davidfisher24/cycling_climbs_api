@@ -10,6 +10,7 @@ from django.http import HttpResponse
 from django.core.files.storage import FileSystemStorage
 from django.contrib.gis.geos import Point, Polygon, LineString
 from django.contrib.gis.measure import Distance  
+from rest_framework.exceptions import ValidationError, ParseError
 from magic import from_file
 import time
 import json
@@ -157,6 +158,20 @@ class RefreshView(DefaultsMixin, APIView):
         serializer.is_valid(raise_exception=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+
+class ForgotPasswordView(DefaultsMixin, APIView):
+    permission_classes = (permissions.AllowAny,)
+
+    def post(self, request):
+        json_data = json.loads(request.body)
+        try:
+            user = models.User.objects.get(email=json_data['email'])
+        except models.User.DoesNotExist:
+            raise ValidationError("A user with this email was not found")
+        
+        token = user.set_reset_password_token()
+        # SEND THE RESET PASSWORD EMAIL HERE
+        return Response(status=status.HTTP_200_OK)
         
 class UserView(DefaultsMixin, APIView):
     serializer_class = serializers.UserSerializer

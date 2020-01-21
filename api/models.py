@@ -42,6 +42,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(db_index=True, max_length=255, unique=True)
     email = models.EmailField(db_index=True, max_length=255, unique=True)
     refresh_token = models.CharField(db_index=True, max_length=255, unique=True, null=True)
+    reset_password_token = models.CharField(db_index=True, max_length=255, unique=True, null=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -66,6 +67,9 @@ class User(AbstractBaseUser, PermissionsMixin):
     def get_short_name(self):
         return self.username
 
+    def set_reset_password_token(self):
+        return self._generate_password_refresh_token()
+
     def _generate_jwt_token(self):
         dt = datetime.now() + timedelta(days=60)
 
@@ -86,6 +90,20 @@ class User(AbstractBaseUser, PermissionsMixin):
 
         self.refresh_token = token
         self.save()
+
+    def _generate_password_refresh_token(self):
+        dt = datetime.now() + timedelta(minutes=15)
+        secret = self.password + self.created_at.strftime('%s')
+
+        token = jwt.encode({
+            'id': self.pk,
+            'exp': int(dt.strftime('%s'))
+        }, settings.SECRET_KEY, algorithm='HS256')
+
+        self.reset_password_token = token
+        self.save()
+        return self.reset_password_token
+
 
 class Province(models.Model):
     name = models.CharField(max_length=200)
