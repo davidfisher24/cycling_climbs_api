@@ -12,6 +12,7 @@ from django.contrib.gis.geos import Point, Polygon, LineString
 from django.contrib.gis.measure import Distance  
 from magic import from_file
 import time
+import json
 
 from rest_framework import viewsets
 
@@ -136,7 +137,27 @@ class LoginView(DefaultsMixin, APIView):
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+class VerifyView(DefaultsMixin, APIView):
+    permission_classes = (permissions.AllowAny,)
 
+    def get(self, request):
+        user = request.data
+        if user:
+            return Response(status=status.HTTP_200_OK)
+        else:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+class RefreshView(DefaultsMixin, APIView):
+    permission_classes = (permissions.AllowAny,)
+    
+    def post(self, request):
+        json_data = json.loads(request.body)
+        context = {"refresh_token": json_data['refresh_token']}
+        serializer = serializers.RefreshSerializer(data=self.request.data, context=context)
+        serializer.is_valid(raise_exception=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+        
 class UserView(DefaultsMixin, APIView):
     serializer_class = serializers.UserSerializer
 

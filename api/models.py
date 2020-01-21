@@ -41,6 +41,7 @@ class UserManager(BaseUserManager):
 class User(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(db_index=True, max_length=255, unique=True)
     email = models.EmailField(db_index=True, max_length=255, unique=True)
+    refresh_token = models.CharField(db_index=True, max_length=255, unique=True, null=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -56,6 +57,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     @property
     def token(self):
+        self._generate_refresh_token()
         return self._generate_jwt_token()
 
     def get_full_name(self):
@@ -73,6 +75,17 @@ class User(AbstractBaseUser, PermissionsMixin):
         }, settings.SECRET_KEY, algorithm='HS256')
 
         return token.decode('utf-8')
+
+    def _generate_refresh_token(self):
+        dt = datetime.now()
+
+        token = jwt.encode({
+            'id': self.pk,
+            'exp': int(dt.strftime('%s'))
+        }, settings.SECRET_KEY, algorithm='HS256')
+
+        self.refresh_token = token
+        self.save()
 
 class Province(models.Model):
     name = models.CharField(max_length=200)

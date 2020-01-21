@@ -108,9 +108,9 @@ DATABASES = {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
         'NAME': locals()['DATABASE_NAME'],                      
         'USER': locals()['DATABASE_USER'],
-        'PASSWORD': locals()['DATABASE_PASSWORD'],
-        'HOST': locals()['DATABASE_HOST'],
-        'PORT': locals()['DATABASE_PORT'],
+        #'PASSWORD': locals()['DATABASE_PASSWORD'],
+        #'HOST': locals()['DATABASE_HOST'],
+        #'PORT': locals()['DATABASE_PORT'],
     }
 }
 
