@@ -3,9 +3,6 @@ from rest_framework import authentication, permissions, viewsets, pagination, ex
 from rest_framework.response import Response
 import api.backends as backends
 import api.serializers as serializers
-from django.core.files.storage import FileSystemStorage
-from magic import from_file
-import time
 
 class DefaultsMixin(object):
 	authentication_classes = (

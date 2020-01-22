@@ -1,49 +1,7 @@
 # -*- coding: utf-8 -*-
-
 from rest_framework import serializers
-from rest_framework_gis.serializers import GeoFeatureModelSerializer
-from api.models import Climb,User,Province,Review,Photo
 from django.contrib.auth import authenticate
-from django.contrib.gis.measure import Distance  
-
-class AltimeterSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Climb
-        geo_field = "path"
-        fields = ('id', 'name', 'altitude', 'extent', 'gradient', 'gain', 
-            'distance', 'center', 'kilometers', 'area')
-
-class ClimbListSerializer(GeoFeatureModelSerializer):
-    class Meta:
-        model = Climb
-        geo_field = "location"
-        fields= ('id','name','location')
-
-class ClimbOneSerializer(GeoFeatureModelSerializer):
-    class Meta:
-        model = Climb
-        geo_field = "path"
-        fields = ('id', 'name', 'path', 'location', 'altitude', 'extent', 'gradient', 'gain', 
-            'distance', 'center', 'peak_name', 'climb_name')
-        extra_kwargs = {
-            'peak_name': {'write_only': True},
-            'climb_name': {'write_only': True}
-        }  
-
-class ProvinceSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Province
-        fields = ('id', 'name')
-
-class ReviewSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Review
-        fields = ('id','text','score','user','created_at','updated_at','climb')
-
-class PhotoSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Photo
-        fields = ('id','path','fileType','fileSize','text','user','created_at', 'climb')
+from api.models import User
 
 class RegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(
@@ -128,29 +86,45 @@ class RefreshSerializer(serializers.Serializer):
             'refresh_token': user.refresh_token
         }
 
-
-class UserSerializer(serializers.ModelSerializer):
+class ResetPasswordSerializer(serializers.Serializer):
+    email = serializers.CharField(max_length=255, read_only=True)
+    username = serializers.CharField(max_length=255, read_only=True)
+    token = serializers.CharField(max_length=255, read_only=True)
+    refresh_token = serializers.CharField(max_length=255, read_only=True)
     password = serializers.CharField(
         max_length=128,
         min_length=8,
         write_only=True
     )
+    
 
-    class Meta:
-        model = User
-        fields = ('email', 'username', 'password', 'token',)
-        read_only_fields = ('token',)
+    def validate(self, data):
+        user_id = self.context.get('user_id', None)
+        reset_token = self.context.get('reset_token', None)
+        new_password = data.get('password', None)
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            raise serializers.ValidationError(
+                'A user with this id was not found.'
+            )
+ 
+        if not user.is_active:
+            raise serializers.ValidationError(
+                'This user has been deactivated.'
+            )
 
+        try:
+            user.verify_reset_token(reset_token)
+            user.set_new_password(new_password)
+        except:
+            raise serializers.ValidationError(
+                'Reset password token is not valid.'
+            )
 
-    def update(self, instance, validated_data):
-        password = validated_data.pop('password', None)
-
-        for (key, value) in validated_data.items():
-            setattr(instance, key, value)
-
-        if password is not None:
-            instance.set_password(password)
-            
-        instance.save()
-
-        return instance
+        return {
+            'email': user.email,
+            'username': user.username,
+            'token': user.token,
+            'refresh_token': user.refresh_token
+        }
