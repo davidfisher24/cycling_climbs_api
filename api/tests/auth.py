@@ -2,10 +2,10 @@ from django.test import TestCase
 from rest_framework.test import APIClient, APIRequestFactory, force_authenticate
 from api.models.user import User, UserManager
 from api.serializers import RegistrationSerializer, LoginSerializer, UserSerializer
-from api.views import RegistrationView, LoginView, UserView
+from api.views import RegistrationView, LoginView
 import json
 
-class UserTestCase(TestCase):
+class AuthTestCase(TestCase):
     def setUp(self):
         self.client = APIClient()
         self.factory = APIRequestFactory()
@@ -16,7 +16,11 @@ class UserTestCase(TestCase):
             'username': 'davidfisher24'
         }
 
-        self.user = User.objects.create(**self.user_data)
+        self.user = User.objects.create_user(**self.user_data)
+        self.token = self.user._generate_jwt_token()
+        
+        self.user._generate_refresh_token()
+        self.refresh_token = self.user.refresh_token
 
     def test_registration_viewset_creates_user(self):
         view = RegistrationView.as_view()
@@ -103,9 +107,19 @@ class UserTestCase(TestCase):
         view = LoginView.as_view()
         data = {
             'email': 'davidfisher24@gmail.com',
-            'username': 'password'
+            'password': 'password'
         }
         request = self.factory.post('/api/auth/login', data=data, format='json')
         response = view(request)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(set(response.data.keys()), set(['email', 'username', 'token', 'refresh_token']))
+
+    def test_login_viewset_fails_with_incorrect_password(self):
+        view = LoginView.as_view()
+        data = {
+            'email': 'davidfisher24@gmail.com',
+            'password': 'fake-password'
+        }
+        request = self.factory.post('/api/auth/login', data=data, format='json')
+        response = view(request)
+        self.assertEqual(response.status_code, 400)
