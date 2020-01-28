@@ -100,7 +100,6 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def verify_reset_token(self, token):
         secret = self.password + self.created_at.strftime('%s')
-        print(secret)
         data = jwt.decode(token, secret, algorithms='HS256')
         return data
 

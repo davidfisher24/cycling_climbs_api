@@ -3,6 +3,7 @@ from .viewBase import DefaultViewSet
 from api.models import Photo
 from api.serializers import PhotoSerializer
 from django.core.files.storage import FileSystemStorage
+from magic import from_file
 import time
 
 

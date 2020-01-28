@@ -1,0 +1,32 @@
+- model: api.user
+  pk: 1
+  fields:
+    password: pbkdf2_sha256$150000$LZd7QvEAeSX0$5pqPjY759bS9Dj4E5S7mQbLQVLh7TV/wtdIA/13lIYU=
+    last_login: null
+    is_superuser: false
+    username: testuser1
+    email: testuser1@email.com
+    refresh_token: b'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6MSwiZXhwIjoxNTgwMjM1MjI0fQ.WF2NjpSJOYrIZ9dBK_eClBXi0VX9zxCVpkPCZ61NRXo'
+    reset_password_token: null
+    is_active: true
+    is_staff: false
+    created_at: 2020-01-28 18:13:44.023964+00:00
+    updated_at: 2020-01-28 18:14:51.015853+00:00
+    groups: []
+    user_permissions: []
+- model: api.user
+  pk: 2
+  fields:
+    password: pbkdf2_sha256$150000$6IqVyD7h5wbv$MDosa02A9MERsfAddqXQTH9VHZCdpTrmTHlNNSwqm+I=
+    last_login: null
+    is_superuser: false
+    username: testuser2
+    email: testuser2@email.com
+    refresh_token: b'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6MiwiZXhwIjoxNTgwMjM1MzI3fQ.VWGxcCt_fcdVkYB4VBahIaE6H9uHe_4eAsH0cjI5GQY'
+    reset_password_token: null
+    is_active: true
+    is_staff: false
+    created_at: 2020-01-28 18:15:27.582569+00:00
+    updated_at: 2020-01-28 18:15:43.395235+00:00
+    groups: []
+    user_permissions: []

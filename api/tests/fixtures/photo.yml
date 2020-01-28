@@ -1,0 +1,90 @@
+- model: api.photo
+  pk: 1
+  fields:
+    path: assets/1/photos/20200128-183635
+    fileType: image/jpeg
+    fileSize: 5744
+    text: null
+    user: 1
+    climb: 1
+    created_at: 2020-01-28 18:36:35.515920+00:00
+- model: api.photo
+  pk: 2
+  fields:
+    path: assets/1/photos/20200128-183644
+    fileType: image/jpeg
+    fileSize: 5744
+    text: null
+    user: 1
+    climb: 1
+    created_at: 2020-01-28 18:36:44.452600+00:00
+- model: api.photo
+  pk: 3
+  fields:
+    path: assets/1/photos/20200128-183645
+    fileType: image/jpeg
+    fileSize: 5744
+    text: null
+    user: 1
+    climb: 1
+    created_at: 2020-01-28 18:36:45.846489+00:00
+- model: api.photo
+  pk: 4
+  fields:
+    path: assets/1/photos/20200128-183647
+    fileType: image/jpeg
+    fileSize: 5744
+    text: null
+    user: 1
+    climb: 1
+    created_at: 2020-01-28 18:36:47.732659+00:00
+- model: api.photo
+  pk: 5
+  fields:
+    path: assets/2/photos/20200128-183652
+    fileType: image/jpeg
+    fileSize: 5744
+    text: null
+    user: 1
+    climb: 2
+    created_at: 2020-01-28 18:36:52.241685+00:00
+- model: api.photo
+  pk: 6
+  fields:
+    path: assets/2/photos/20200128-183652
+    fileType: image/jpeg
+    fileSize: 5744
+    text: null
+    user: 1
+    climb: 2
+    created_at: 2020-01-28 18:36:52.967504+00:00
+- model: api.photo
+  pk: 7
+  fields:
+    path: assets/3/photos/20200128-183656
+    fileType: image/jpeg
+    fileSize: 5744
+    text: null
+    user: 1
+    climb: 3
+    created_at: 2020-01-28 18:36:56.459750+00:00
+- model: api.photo
+  pk: 8
+  fields:
+    path: assets/1/photos/20200128-183755
+    fileType: image/jpeg
+    fileSize: 5744
+    text: null
+    user: 2
+    climb: 1
+    created_at: 2020-01-28 18:37:55.209264+00:00
+- model: api.photo
+  pk: 9
+  fields:
+    path: assets/2/photos/20200128-183759
+    fileType: image/jpeg
+    fileSize: 5744
+    text: null
+    user: 2
+    climb: 2
+    created_at: 2020-01-28 18:37:59.963871+00:00

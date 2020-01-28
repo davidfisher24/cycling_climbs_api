@@ -46,13 +46,12 @@ class DefaultViewSet(DefaultsMixin, viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         instance = request.data
-        if ('user' in self.get_serializer()):
-            instance['user'] = request.user.id
+        instance['user'] = request.user.id
         return super().create(request, *args, **kwargs)
 
     def update(self, request, *args, **kwargs):
         instance = self.get_object()
-        if ('user' in self.get_serializer() and instance.user.id != request.user.id):
+        if (instance.user.id != request.user.id):
             raise exceptions.PermissionDenied('User not authorized to edit this instance')
         kwargs['partial'] = True
         return super().update(request, *args, **kwargs)

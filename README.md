@@ -36,3 +36,24 @@ python3 manage.py loaddata ./data/climbs.yaml
 python3 manage.py loaddata ./data/provinces.yaml
 ```
 
+## Local Deployment
+
+Tests are run with django TestCase. Fixtures are found in api/tests/fixtures. Please test all new functionality
+
+Test Command
+
+```
+python3 manage.py test
+```
+
+Test One Test Case
+
+```
+python3 manage.py test api.tests.ClimbTestCase
+```
+
+Run Single Test 
+
+```
+python3 manage.py test api.tests.ClimbTestCase.test_climb_viewset_destroy_route
+```

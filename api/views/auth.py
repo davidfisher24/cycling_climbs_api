@@ -2,6 +2,7 @@
 from rest_framework import permissions, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.serializers import ValidationError
 from .viewBase import DefaultViewSet, DefaultsMixin
 from api.models import User
 from api.serializers import RegistrationSerializer, LoginSerializer, RefreshSerializer, ResetPasswordSerializer
