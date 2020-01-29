@@ -1,4 +1,5 @@
 from django.test import TestCase
+from datetime import date
 from django.core.serializers import register_serializer
 from rest_framework.test import APIClient, APIRequestFactory, force_authenticate
 from api.models import Climb, User, Achievement
@@ -35,7 +36,21 @@ class AchievementTestCase(TestCase):
         view = AchievementViewSet.as_view(actions={'get': 'list'})
         response = view(request)
         self.assertEqual(len(response.data['results']),4)
-    
+
+    def test_achievement_viewset_list_route_for_auth_user(self):
+        request = self.factory.get('/api/achievement/me')
+        view = AchievementViewSet.as_view(actions={'get': 'me'})
+        auth_user = User.objects.get(id=1)
+        force_authenticate(request,user=auth_user)
+        response = view(request)
+        self.assertEqual(len(response.data['results']),4)
+
+    def test_achievement_viewset_list_route_for_auth_user_with_auth_error(self):
+        request = self.factory.get('/api/achievement/me')
+        view = AchievementViewSet.as_view(actions={'get': 'me'})
+        response = view(request)
+        self.assertEqual(response.status_code, 403)
+
     def test_climb_viewset_retrieve_route(self):
         request = self.factory.get('/api/achievement')
         view = AchievementViewSet.as_view(actions={'get': 'retrieve'})
@@ -83,7 +98,7 @@ class AchievementTestCase(TestCase):
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.data['climb'],1)
         self.assertEqual(response.data['time'],None)
-        #self.assertEqual(response.data['date'],None)
+        self.assertEqual(response.data['date'], str(date.today()))
 
     def test_climb_viewset_fails_to_create_if_no_user_is_authenticated(self):
         view = AchievementViewSet.as_view(actions={'post': 'create'})

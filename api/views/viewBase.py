@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from rest_framework import authentication, permissions, viewsets, pagination, exceptions
 from rest_framework.response import Response
+from rest_framework.decorators import action 
 import api.backends as backends
 import api.serializers as serializers
 
@@ -41,7 +42,18 @@ class DefaultViewSet(DefaultsMixin, viewsets.ModelViewSet):
             return [permissions.IsAuthenticated()]
 
     def list(self, request, *args, **kwargs):
+        if self.pagination_class != None:
+            self.pagination_class.setPageSize(self.pagination_class,self.page_size)
+        return super().list(request)
+
+    @action(detail=False)
+    def me(self, request, *args, **kwargs):
+        if (request.user.id == None):
+            raise exceptions.PermissionDenied('User not authorized to edit this instance')
         self.pagination_class.setPageSize(self.pagination_class,self.page_size)
+        queryset = self.get_queryset()
+        self.queryset = queryset.filter(user=request.user.id)
+        print(self.get_queryset)
         return super().list(request)
 
     def create(self, request, *args, **kwargs):

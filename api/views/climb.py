@@ -33,6 +33,7 @@ class ClimbViewSet(DefaultViewSet):
         'list': ClimbListSerializer,
     }
     query_options = ['climb_name','peak_name']
+    pagination_class = None
 
     def convertGeom(self):
         path = LineString(self.request.data['path'])
