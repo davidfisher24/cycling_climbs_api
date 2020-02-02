@@ -21,7 +21,7 @@ class ClimbOneSerializer(GeoFeatureModelSerializer):
         model = Climb
         geo_field = "path"
         fields = ('id', 'name', 'path', 'location', 'altitude', 'extent', 'gradient', 'gain', 
-            'distance', 'center', 'peak_name', 'climb_name')
+            'distance', 'center', 'peak_name', 'climb_name', 'kilometers', 'area')
         extra_kwargs = {
             'peak_name': {'write_only': True},
             'climb_name': {'write_only': True}

@@ -33,8 +33,11 @@ Use seed scripts found in /data for initial data
 
 ```
 python3 manage.py loaddata ./data/climbs.yaml
+python3 manage.py loaddata ./data/regions.yaml
 python3 manage.py loaddata ./data/provinces.yaml
 ```
+
+python3 manage.py dumpdata api_region > ./data/regions.yaml
 
 ## Local Deployment
 

@@ -14,9 +14,13 @@ import functools
 import base64
 import json
 
+class Region(models.Model):
+    name = models.CharField(max_length=200)
+
 class Province(models.Model):
     name = models.CharField(max_length=200)
     population = models.IntegerField()
-    region = models.IntegerField()
+    region = models.ForeignKey(Region, on_delete=models.CASCADE)
     area = models.MultiPolygonField()
     
+
