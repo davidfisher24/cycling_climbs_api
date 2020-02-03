@@ -18,8 +18,6 @@ class ClimbTestCase(TestCase):
         self.client = APIClient()
         self.factory = APIRequestFactory()
 
-        #self.test_user = User.objects.get(id=1)
-
         self.test_climb = Climb.objects.get(id=1)
         self.listSerializer = ClimbListSerializer(instance=self.test_climb)
         self.oneSerializer = ClimbOneSerializer(instance=self.test_climb)
@@ -113,7 +111,7 @@ class ClimbTestCase(TestCase):
     def test_properties_contains_expected_in_one_serializer(self):
         data = self.oneSerializer.data
         self.assertEqual(set(data['properties'].keys()), set(['name', 'location', 'altitude', 'extent', 'gradient', 'gain', 
-            'distance', 'center']))
+            'distance', 'center', 'area', 'kilometers']))
 
     def test_one_serializer_contains_geojson_point(self):
         data = self.oneSerializer.data

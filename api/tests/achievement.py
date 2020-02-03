@@ -51,7 +51,7 @@ class AchievementTestCase(TestCase):
         response = view(request)
         self.assertEqual(response.status_code, 403)
 
-    def test_climb_viewset_retrieve_route(self):
+    def test_achievement_viewset_retrieve_route(self):
         request = self.factory.get('/api/achievement')
         view = AchievementViewSet.as_view(actions={'get': 'retrieve'})
         response = view(request,pk=1)
@@ -59,7 +59,7 @@ class AchievementTestCase(TestCase):
         self.assertEqual(set(response.data.keys()), set(['id', 'climb', 'user', 'time', 'date', 'created_at']))
         self.assertEqual(response.data['climb'],1)
 
-    def test_climb_viewset_create_route(self):
+    def test_achievement_viewset_create_route(self):
         view = AchievementViewSet.as_view(actions={'post': 'create'})
         data = {
             'climb': 1,
@@ -73,7 +73,7 @@ class AchievementTestCase(TestCase):
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.data['climb'],1)
 
-    def test_climb_viewset_create_route_with_undefined_required_data(self):
+    def test_achievement_viewset_create_route_with_undefined_required_data(self):
         view = AchievementViewSet.as_view(actions={'post': 'create'})
         data = {
             'time': 3600,
@@ -86,7 +86,7 @@ class AchievementTestCase(TestCase):
         self.assertEqual(response.status_code, 400)
         self.assertEqual(set(response.data['errors'].keys()), set(['climb']))
 
-    def test_climb_viewset_create_route_with_undefined_non_required_data(self):
+    def test_achievement_viewset_create_route_with_undefined_non_required_data(self):
         view = AchievementViewSet.as_view(actions={'post': 'create'})
         data = {
             'climb': 1,
@@ -100,7 +100,7 @@ class AchievementTestCase(TestCase):
         self.assertEqual(response.data['time'],None)
         self.assertEqual(response.data['date'], str(date.today()))
 
-    def test_climb_viewset_fails_to_create_if_no_user_is_authenticated(self):
+    def test_achievement_viewset_fails_to_create_if_no_user_is_authenticated(self):
         view = AchievementViewSet.as_view(actions={'post': 'create'})
         data = {
             'climb': 1,
@@ -112,7 +112,7 @@ class AchievementTestCase(TestCase):
         self.assertEqual(response.status_code, 401)
     
     
-    def test_climb_viewset_update_route_updates_data(self):
+    def test_achievement_viewset_update_route_updates_data(self):
         view = AchievementViewSet.as_view(actions={'put': 'update'})
         data = {
             'time': 1000
@@ -125,7 +125,7 @@ class AchievementTestCase(TestCase):
         self.assertEqual(response.data['time'],1000)
         self.assertEqual(response.data['climb'],1)
 
-    def test_climb_viewset_update_route_fails_to_update_if_no_user_autenticated(self):
+    def test_achievement_viewset_update_route_fails_to_update_if_no_user_autenticated(self):
         view = AchievementViewSet.as_view(actions={'put': 'update'})
         data = {
             'time': 1000
@@ -134,7 +134,7 @@ class AchievementTestCase(TestCase):
         response = view(request, pk=1, format='json')
         self.assertEqual(response.status_code, 401) 
 
-    def test_climb_viewset_update_route_fails_to_update_if_wrong_user_autenticated(self):
+    def test_achievement_viewset_update_route_fails_to_update_if_wrong_user_autenticated(self):
         view = AchievementViewSet.as_view(actions={'put': 'update'})
         data = {
             'time': 1000
@@ -147,7 +147,7 @@ class AchievementTestCase(TestCase):
         self.assertEqual(response.status_code, 403) 
 
     
-    def test_climb_viewset_destroy_route(self):
+    def test_achievement_viewset_destroy_route(self):
         view = AchievementViewSet.as_view(actions={'delete': 'destroy'})
         request = self.factory.delete('/api/achievement')
         auth_user = User.objects.get(id=1)
@@ -155,13 +155,13 @@ class AchievementTestCase(TestCase):
         response = view(request, pk=1, format='json')
         self.assertEqual(response.status_code, 204) 
 
-    def test_climb_viewset_delete_route_fails_if_no_user_autenticated(self):
+    def test_achievement_viewset_delete_route_fails_if_no_user_autenticated(self):
         view = AchievementViewSet.as_view(actions={'delete': 'destroy'})
         request = self.factory.delete('/api/achievement')
         response = view(request, pk=1, format='json')
         self.assertEqual(response.status_code, 401) 
 
-    def test_climb_viewset_update_route_fails_if_wrong_user_autenticated(self):
+    def test_achievement_viewset_update_route_fails_if_wrong_user_autenticated(self):
         view = AchievementViewSet.as_view(actions={'delete': 'destroy'})
         request = self.factory.delete('/api/achievement')
         wrong_user = User.objects.get(id=2)

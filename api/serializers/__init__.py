@@ -6,3 +6,4 @@ from .review import ReviewSerializer
 from .photo import PhotoSerializer
 from .achievement import AchievementSerializer
 from .auth import RegistrationSerializer, LoginSerializer, RefreshSerializer, ResetPasswordSerializer
+from. bookmark import BookmarkSerializer
