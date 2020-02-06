@@ -100,7 +100,6 @@ class ReviewTestCase(TestCase):
         force_authenticate(request,user=auth_user)
         response = view(request)
         self.assertEqual(response.status_code, 400)
-        #self.assertEqual(set(response.data['errors'].keys()), set(['score']))
 
     def test_review_viewset_fails_to_create_if_no_user_is_authenticated(self):
         view = ReviewViewSet.as_view(actions={'post': 'create'})
