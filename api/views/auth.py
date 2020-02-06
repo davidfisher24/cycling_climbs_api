@@ -33,12 +33,16 @@ class LoginView(DefaultsMixin, APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 class VerifyView(DefaultsMixin, APIView):
-    permission_classes = (permissions.AllowAny,)
+    permission_classes = (permissions.IsAuthenticated,)
 
     def get(self, request):
-        user = request.data
+        user = request.user
         if user:
-            return Response(status=status.HTTP_200_OK)
+            return Response({
+                'id': user.id,
+                'email': user.email,
+                'username': user.username
+            },status=status.HTTP_200_OK)
         else:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
 
