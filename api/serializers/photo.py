@@ -5,5 +5,5 @@ from api.models import Photo
 class PhotoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Photo
-        fields = ('id','path','fileType','fileSize','text','user','created_at', 'climb')
+        fields = ('id','path', 'url', 'fileType','fileSize','text','user','created_at', 'climb')
 

@@ -34,6 +34,8 @@ DEBUG = locals()['DEBUG']
 
 ALLOWED_HOSTS = locals()['ALLOWED_HOSTS']
 
+BASE_URL = locals()['BASE_URL']
+
 # Application definition
 
 INSTALLED_APPS = [

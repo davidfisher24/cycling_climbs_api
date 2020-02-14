@@ -1,4 +1,5 @@
 from django.test import TestCase
+from django.conf import settings
 from datetime import date
 from django.core.serializers import register_serializer
 from rest_framework.test import APIClient, APIRequestFactory, force_authenticate
@@ -21,6 +22,15 @@ class PhotoTestCase(TestCase):
         self.factory = APIRequestFactory()
         self.image_url = '/home/david/Sites/cycling_climbs_api/api/tests/fixtures/image.jpeg'
         self.pdf_url = '/home/david/Sites/cycling_climbs_api/api/tests/fixtures/image.pdf'
+
+    def test_photo_virtual_url(self):
+        photo = Photo.objects.get(pk=1)
+        self.assertEqual(photo.url, settings.BASE_URL + "assets/1/photos/20200128-183635")
+
+    def test_properties_contains_expected_in_serializer(self):
+        photo = Photo.objects.get(id=1)
+        serializer = PhotoSerializer(instance=photo)
+        self.assertEqual(set(serializer.data.keys()), set(['id', 'climb', 'user', 'text', 'path', 'url', 'fileType', 'fileSize', 'created_at']))
 
     def test_photo_viewset_list_route(self):
         request = self.factory.get('/api/photo')
@@ -65,7 +75,7 @@ class PhotoTestCase(TestCase):
         view = PhotoViewSet.as_view(actions={'get': 'retrieve'})
         response = view(request,pk=1)
         self.assertEqual(response.status_code, 200) 
-        self.assertEqual(set(response.data.keys()), set(['id', 'climb', 'user', 'text', 'path', 'fileType', 'fileSize', 'created_at']))
+        self.assertEqual(set(response.data.keys()), set(['id', 'climb', 'user', 'text', 'path', 'url', 'fileType', 'fileSize', 'created_at']))
         self.assertEqual(response.data['climb'],1)
 
 
@@ -83,7 +93,7 @@ class PhotoTestCase(TestCase):
             response = view(request)
             self.assertEqual(response.status_code, 201)
             self.assertEqual(response.data['climb'],1)
-            self.assertEqual(set(response.data.keys()), set(['id', 'climb', 'user', 'text', 'path', 'fileType', 'fileSize', 'created_at']))
+            self.assertEqual(set(response.data.keys()), set(['id', 'climb', 'user', 'url', 'text', 'path', 'fileType', 'fileSize', 'created_at']))
 
     def test_photo_viewset_create_route_fails_with_wrong_file_type(self):
         view = PhotoViewSet.as_view(actions={'post': 'create'})

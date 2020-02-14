@@ -28,7 +28,7 @@ urlpatterns = [
     url(r'api/auth/refresh', RefreshView.as_view()),
     url(r'api/auth/forgot-password', ForgotPasswordView.as_view()),
     url(r'api/auth/reset-password', ResetPasswordView.as_view()),
-    url(r'^images/', ImageView.as_view())
+    url(r'^assets/', ImageView.as_view())
 ]
 
 

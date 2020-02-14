@@ -53,7 +53,6 @@ class DefaultViewSet(DefaultsMixin, viewsets.ModelViewSet):
         self.pagination_class.setPageSize(self.pagination_class,self.page_size)
         queryset = self.get_queryset()
         self.queryset = queryset.filter(user=request.user.id)
-        print(self.get_queryset)
         return super().list(request)
 
     def create(self, request, *args, **kwargs):
