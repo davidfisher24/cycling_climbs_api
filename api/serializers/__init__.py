@@ -1,6 +1,6 @@
 from .climb import ClimbOneSerializer, ClimbListSerializer, AltimeterSerializer
 from .province import ProvinceSerializer
-from .user import UserSerializer
+from .user import UserSerializer, UserUpdateSerializer
 from .comment import CommentSerializer
 from .review import ReviewSerializer
 from .photo import PhotoSerializer
