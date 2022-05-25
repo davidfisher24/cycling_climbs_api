@@ -5,6 +5,6 @@ django-filter==2.2.0
 djangorestframework_gis==0.14
 djangorestframework==3.10.3
 psycopg2==2.8.4
-PyJWT==1.7.1
+PyJWT==2.4.0
 python_magic==0.4.15
 pyyaml==5.1
