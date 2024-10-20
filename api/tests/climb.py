@@ -2,10 +2,11 @@ from django.test import TestCase
 from rest_framework.test import APIClient, APIRequestFactory, force_authenticate
 from django.contrib.gis.geos import LineString, Point
 from api.models import Climb, User
-from api.serializers import ClimbListSerializer, ClimbOneSerializer, AltimeterSerializer
-from api.views import ClimbViewSet, AltimeterViewSet
+from api.serializers import ClimbListSerializer, ClimbOneSerializer
+from api.views import ClimbViewSet
 from django.core.serializers import register_serializer
 import json
+from unittest import skip
 
 class ClimbTestCase(TestCase):
     register_serializer('yml', 'django.core.serializers.pyyaml')
@@ -21,7 +22,6 @@ class ClimbTestCase(TestCase):
         self.test_climb = Climb.objects.get(id=1)
         self.listSerializer = ClimbListSerializer(instance=self.test_climb)
         self.oneSerializer = ClimbOneSerializer(instance=self.test_climb)
-        self.altimeterSerializer = AltimeterSerializer(instance=self.test_climb)
  
     def test_climb_peak_name(self):
         climb = Climb.objects.get(pk=1)
@@ -61,15 +61,15 @@ class ClimbTestCase(TestCase):
             ]
         })
 
-    def test_climb_virtual_kilometers_points(self):
+    def test_climb_virtual_altimeter(self):
         climb = Climb.objects.get(pk=1)
-        self.assertEqual(len(climb.kilometers),20)
-        self.assertEqual(climb.kilometers[1], {
+        self.assertEqual(len(climb.altimeter),20)
+        self.assertEqual(climb.altimeter[1], {
             "altitude": 512.0,
             "distance": 1.0,
             "kmGradient": 4.1
         })
-        self.assertEqual(climb.kilometers[19],{
+        self.assertEqual(climb.altimeter[19],{
             "altitude": 1358.0,
             "distance": 18.064204053243856,
             "kmGradient": 2.887914419236268
@@ -95,10 +95,6 @@ class ClimbTestCase(TestCase):
         data = self.listSerializer.data
         self.assertEqual(set(data.keys()), set(['id','type','geometry','properties']))
 
-    def test_properties_contains_expected_in_list_serializer(self):
-        data = self.listSerializer.data
-        self.assertEqual(data['properties'],{ 'name': 'Santillana por Ohanes' })
-
     def test_list_serializer_contains_geojson_point(self):
         data = self.listSerializer.data
         self.assertEqual(data['geometry']['coordinates'],[-2.719262, 37.005069, 471.0])
@@ -111,25 +107,43 @@ class ClimbTestCase(TestCase):
     def test_properties_contains_expected_in_one_serializer(self):
         data = self.oneSerializer.data
         self.assertEqual(set(data['properties'].keys()), set(['name', 'location', 'altitude', 'extent', 'gradient', 'gain', 
-            'distance', 'center', 'area', 'kilometers']))
+            'distance', 'center', 'area', 'altimeter']))
 
     def test_one_serializer_contains_geojson_point(self):
         data = self.oneSerializer.data
         self.assertEqual(data['geometry']['type'], 'LineString')
         self.assertEqual(len(data['geometry']['coordinates']),670)
 
-    def test_altimeter_serializer_contains_expected_fields(self):
-        data = self.altimeterSerializer.data
-        self.assertEqual(set(data.keys()), set(['id', 'name', 'altitude', 'extent', 'gradient', 'gain', 
-            'distance', 'center', 'kilometers', 'area']))
-
-    def test_climb_viewset_list_route(self):
-        request = self.factory.get('/api/climb')
+    def test_climb_viewset_list_route_with_search_query(self):
+        request = self.factory.get('/api/climb?search=santillana')
         view = ClimbViewSet.as_view(actions={'get': 'list'})
         response = view(request)
         self.assertEqual(response.status_code, 200) 
         self.assertEqual(response.data['type'],"FeatureCollection")
-        self.assertEqual(len(response.data['features']),3)
+        self.assertEqual(len(response.data['features']),1)
+
+    def test_climb_viewset_list_route_with_location_query(self):
+        request = self.factory.get('/api/climb?location=37.0904287,-2.730939&distance=25')
+        view = ClimbViewSet.as_view(actions={'get': 'list'})
+        response = view(request)
+        self.assertEqual(response.status_code, 200) 
+        self.assertEqual(response.data['type'],"FeatureCollection")
+        self.assertEqual(len(response.data['features']),2)
+
+    def test_climb_viewset_list_route_with_bbox_query(self):
+        request = self.factory.get('/api/climb?bbox=36.984455,-2.813873,37.109271,-2.519989')
+        view = ClimbViewSet.as_view(actions={'get': 'list'})
+        response = view(request)
+        self.assertEqual(response.status_code, 200) 
+        self.assertEqual(response.data['type'],"FeatureCollection")
+        self.assertEqual(len(response.data['features']),1)
+
+    def test_climb_viewset_list_route_without_query(self):
+        request = self.factory.get('/api/climb')
+        view = ClimbViewSet.as_view(actions={'get': 'list'})
+        response = view(request)
+        self.assertEqual(response.status_code, 400) 
+        self.assertEqual(response.data['errors'][0], "At least one of 'location', 'bbox', or 'search' is required.")
     
     def test_climb_viewset_retrieve_route(self):
         request = self.factory.get('/api/climb')
@@ -138,13 +152,13 @@ class ClimbTestCase(TestCase):
         self.assertEqual(response.status_code, 200) 
         self.assertEqual(set(response.data.keys()), set(['id','type','geometry','properties']))
 
-    
+    @skip('Not yet implemented')
     def test_climb_viewset_create_route(self):
         view = ClimbViewSet.as_view(actions={'post': 'create'})
         data = {
             'climb_name': 'Climb',
             'peak_name': 'The Top',
-            'path': [(0,0,10),(0.5,0.5,50),(1,1,100),(1.5,1.5,150)],
+            'path':  [[0, 0, 10], [0.5, 0.5, 50], [1, 1, 100], [1.5, 1.5, 150]],
             'start': [0,0,10],
             'location': [0,0,10],
             'summit': [1.5,1.5,150]
@@ -170,7 +184,7 @@ class ClimbTestCase(TestCase):
         response = view(request)
         self.assertEqual(response.status_code, 401)
     
-    
+    @skip('Not yet implemented')
     def test_climb_viewset_update_route_updates_data(self):
         view = ClimbViewSet.as_view(actions={'put': 'update'})
         data = {

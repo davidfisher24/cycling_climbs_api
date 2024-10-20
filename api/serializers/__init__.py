@@ -1,4 +1,4 @@
-from .climb import ClimbOneSerializer, ClimbListSerializer, AltimeterSerializer
+from .climb import ClimbOneSerializer, ClimbListSerializer
 from .province import ProvinceSerializer
 from .user import UserSerializer, UserUpdateSerializer
 from .comment import CommentSerializer

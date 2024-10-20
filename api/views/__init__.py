@@ -1,4 +1,4 @@
-from .climb import AltimeterViewSet, ClimbViewSet
+from .climb import ClimbViewSet
 from .province import ProvinceViewSet
 from .user import UserViewSet
 from .comment import CommentViewSet

@@ -61,7 +61,7 @@ class Climb(models.Model):
         return area
     
     @property
-    def kilometers(self):
+    def altimeter(self):
         points = []
         kilometers = []
         indexLimit = math.ceil(self.path.length * 1000) + 1

@@ -1,10 +1,10 @@
-Django==2.2.7
-django-cors-headers==3.2.0
-django-countries==5.5
-django-filter==2.2.0
-djangorestframework_gis==0.14
-djangorestframework==3.10.3
-psycopg2==2.8.4
+Django==4.2
+django-cors-headers==4.5.0
+django-countries==7.6.1
+django-filter==23.5
+djangorestframework_gis==1.1
+djangorestframework==3.14
+psycopg2==2.9.10
 PyJWT==1.7.1
 python_magic==0.4.15
 pyyaml==5.1
